@@ -1,15 +1,26 @@
 const express=require("express")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
-const { usermodule } = require("../Models/user.model")
+const { usermodel } = require("../Models/user.model")
+const { auth } = require("../Middleware/auth.middleware")
 
 const userroute=express.Router()
 
+userroute.get("/",async(req,res)=>{
+   
+    try{
+        const data=await usermodel.find()
+        res.status(200).json({msg:data})
+    }
+    catch(err){
+        res.status(400).json({error:err.message})
+    }
+})
 
 userroute.post("/register",async(req,res)=>{
     let {name,email,password}=req.body
     if(/\d/.test(password) && /[A-Z]/.test(password) && /[!@#$%^&*]/.test(password) && password.length >= 8){
-        const data=await usermodule.findOne({email})
+        const data=await usermodel.findOne({email})
         if(data){
             res.status(400).json({ error: "This Account has already been registered" })
         }
@@ -20,7 +31,7 @@ userroute.post("/register",async(req,res)=>{
                         res.status(400).json({error:err})
                     }
                     else{
-                        const user = new usermodule({ name, email,password: hash })
+                        const user = new usermodel({ name, email,password: hash })
                         await user.save()
                         
                         res.status(200).json({ msg: "The new user has been registered", registeredUser: req.body })
@@ -41,7 +52,7 @@ userroute.post("/register",async(req,res)=>{
 userroute.post("/login", async(req, res) =>{
     const {email,password}=req.body
     try{
-        const user=await usermodule.findOne({email})
+        const user=await usermodel.findOne({email})
         console.log(user)
         if(user){
             bcrypt.compare(password,user.password, (err,result)=>{
@@ -63,6 +74,21 @@ userroute.post("/login", async(req, res) =>{
     }
 })
 
+
+
+userroute.patch("/update/:id",auth,async(req,res)=>{
+    const id=req.params.id
+    
+    try{
+        await usermodel.findByIdAndUpdate({_id:id},req.body)
+        const datawant=await usermodel.find()
+        res.status(200).json({msg:"Coin data has been updated",datawant})
+    }
+    catch(err){
+        res.status(400).json({error:err.message})
+    }
+
+})
 
 
 
