@@ -31,10 +31,10 @@ userroute.post("/register",async(req,res)=>{
                         res.status(400).json({error:err})
                     }
                     else{
-                        const user = new usermodel({ name, email,password: hash })
+                        const user = new usermodel({ name, email,password: hash ,img:"https://th.bing.com/th/id/R.dfd2117bffea3a4aee801514fc559ec9?rik=REcysG6pdXunig&riu=http%3a%2f%2fvardaanmedicalcenter.com%2fimages%2fcontent%2fuser-img.png&ehk=3xmzA5FfQhDypR3AQjnGCHvVocIt83G5KFEA6pKZDH4%3d&risl=&pid=ImgRaw&r=0"})
                         await user.save()
                         
-                        res.status(200).json({ msg: "The new user has been registered", registeredUser: req.body })
+                        res.status(200).json({ msg: "The new user has been registered", registeredUser: user })
                     }
                 })
             }
